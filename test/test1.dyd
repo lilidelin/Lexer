@@ -1,5 +1,7 @@
 begin
   integer k;
+  integer 11u;
+  integer &dd;
   integer function F(n);
     begin
       integer n;

@@ -4,7 +4,7 @@
 
 #ifndef LEXER_PARSER_H
 #define LEXER_PARSER_H
-#include "lexer.h"
+#include "../lexer/lexer.h"
 #include "map"
 #include "vector"
 class Parser {

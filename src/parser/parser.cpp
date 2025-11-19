@@ -6,10 +6,10 @@
 
 void Parser::Match(int type) {
     if(current_token.type == type){
-        current_token = lexer.get_next_token();
+        current_token = lexer.get_next_token_1_1();
         while (current_token.type == 24){
             current_rownum+=1;
-            current_token = lexer.get_next_token();
+            current_token = lexer.get_next_token_1_1();
         }
     }
     else{

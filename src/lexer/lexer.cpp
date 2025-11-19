@@ -15,7 +15,6 @@ Lexer::Lexer(std::string &path) {
         return;
     }
 }
-
 Token Lexer::get_next_token() {
     current_word="";
     flag= false;
@@ -122,8 +121,6 @@ Token Lexer::get_next_token() {
         return current_token;
     }
 }
-
-
 //开始状态
 void Lexer::start(char &current_char) {
     if(current_char=='b')current_state=1;
@@ -155,7 +152,6 @@ void Lexer::start(char &current_char) {
         current_state=26;
     }
 }
-
 //begin状态
 void Lexer::state1(char &current_char, char &front_char) {
     if(!std::isdigit(current_char)&&!std::isalpha(current_char)){
@@ -209,7 +205,6 @@ void Lexer::state1(char &current_char, char &front_char) {
         }
     }
 }
-
 //标识符状态
 void Lexer::state10(char &current_char, char &front_char) {
     if(!std::isdigit(current_char)&&!std::isalpha(current_char)){
@@ -220,7 +215,6 @@ void Lexer::state10(char &current_char, char &front_char) {
         current_state=10;
     }
 }
-
 //end状态
 void Lexer::state2(char &current_char, char &front_char) {
     if(!std::isdigit(current_char)&&!std::isalpha(current_char)){
@@ -259,7 +253,6 @@ void Lexer::state2(char &current_char, char &front_char) {
         }
     }
 }
-
 //integer状态
 void Lexer::state3(char &current_char, char &front_char) {
     // 如果当前字符为其他字符说明该词已结束，只需判断是关键字还是标识符
@@ -321,7 +314,6 @@ void Lexer::state3(char &current_char, char &front_char) {
         }
     }
 }
-
 //if状态
 void Lexer::state4(char &current_char, char &front_char) {
     if(!std::isdigit(current_char)&&!std::isalpha(current_char)){
@@ -337,7 +329,6 @@ void Lexer::state4(char &current_char, char &front_char) {
         current_state=10;
     }
 }
-
 //then状态
 void Lexer::state5(char &current_char, char &front_char) {
     if(!std::isdigit(current_char)&&!std::isalpha(current_char)){
@@ -358,7 +349,6 @@ void Lexer::state5(char &current_char, char &front_char) {
         }
     }
 }
-
 //else状态
 void Lexer::state6(char &current_char, char &front_char) {
     if(!std::isdigit(current_char)&&!std::isalpha(current_char)){
@@ -379,8 +369,6 @@ void Lexer::state6(char &current_char, char &front_char) {
         }
     }
 }
-
-
 //function状态
 void Lexer::state7(char &current_char, char &front_char) {
     if(!std::isdigit(current_char)&&!std::isalpha(current_char)){
@@ -402,8 +390,6 @@ void Lexer::state7(char &current_char, char &front_char) {
         }
     }
 }
-
-
 //read状态
 void Lexer::state8(char &current_char, char &front_char) {
     if(!std::isdigit(current_char)&&!std::isalpha(current_char)){
@@ -423,8 +409,6 @@ void Lexer::state8(char &current_char, char &front_char) {
     }
 
 }
-
-
 //write状态
 void Lexer::state9(char &current_char, char &front_char) {
     if(!std::isdigit(current_char)&&!std::isalpha(current_char)){
@@ -548,6 +532,116 @@ void Lexer::state24() {
 void Lexer::state26() {
     error_output<<"LINE: "<<current_line<<" unrecognized identifier "<<current_word<<std::endl;
     flag= true;
+}
+
+void Lexer::IsLegalIdentifier() {
+    if (IsAllDigit(current_word)&&isalpha(current_char)) {
+        text.unget();
+        error_output<<"LINE: "<<current_line<<" identifier can`t start with number "<<current_word<<std::endl;
+        current_word.clear();
+    }
+    else {
+        current_word+=current_char;
+    }
+}
+
+bool Lexer::SingleCharactor(Token &value) {
+    if (current_word.empty()) {
+        current_word+=current_char;
+        if (current_char=='\n') {
+            current_line++;
+            value = {"ENOL",24};
+            return true;
+        }
+        else if (keyword_map.count(current_word)) {
+            value = {current_word,keyword_map[current_word]};
+            return true;
+        }
+        else {
+            current_word.clear();
+        }
+    }
+    else {
+        text.unget();
+        if (IsAllDigit(current_word)) {
+            value = {current_word,11};
+            return true;
+        }
+        else {
+            if (keyword_map.count(current_word)) {
+                value = {current_word,keyword_map[current_word]};
+                return true;
+            }
+            else {
+                value = {current_word,10};
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+Token Lexer::get_next_token_1_1() {
+    current_word.clear();
+    while ((current_char=text.get())) {
+        if (isalpha(current_char)||isdigit(current_char)) {
+            if (current_word.empty()) {
+                current_word+=current_char;
+            }
+            else {
+                IsLegalIdentifier();
+            }
+        }
+        else if (current_char==' '||current_char=='\n'||current_char=='\t'||current_char=='='||
+                 current_char=='-'||current_char=='*'||current_char=='('||current_char==')'||current_char==';') {
+            Token value;
+            if (SingleCharactor(value)) return value;
+        }
+        else if (current_char=='<'||current_char=='>'||current_char==':') {
+            if (current_word.empty()) {
+                current_word+=current_char;
+                next_char=text.get();
+                if (!isalpha(next_char)&&!isdigit(next_char)) {
+                    current_word+=next_char;
+                }
+                else {
+                    text.unget();
+                }
+                if (keyword_map.count(current_word)) {
+                    return {current_word,keyword_map[current_word]};
+                }
+                else {
+                    error_output<<"LINE: "<<current_line<<" unrecognized identifier "<<current_word<<std::endl;
+                    current_word.clear();
+                }
+            }
+            else {
+                text.unget();
+                if (keyword_map.count(current_word)) {
+                    return {current_word,keyword_map[current_word]};
+                }
+                else {
+                    return {current_word,10};
+                }
+            }
+        }
+        else if (current_char==EOF) {
+            return {"EOF",25};
+        }
+        else {
+            error_output<<"LINE: "<<current_line<<" unrecognized identifier "<<current_word<<std::endl;
+            current_word.clear();
+        }
+    }
+}
+
+bool Lexer::IsAllDigit(std::string &word) {
+    for (char c : word) {
+        if (!isdigit(c)) {
+            return false;
+        }
+    }
+    return true;
 }
 
 

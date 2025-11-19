@@ -1,6 +1,6 @@
 #include<windows.h>
 #include<shobjidl.h>
-#include "parser.h"
+#include "parser/parser.h"
 #pragma comment(lib, "ole32.lib")
 std::string openFileDialog() {
     HRESULT hr = CoInitializeEx(NULL,COINIT_APARTMENTTHREADED|COINIT_DISABLE_OLE1DDE);
@@ -48,11 +48,13 @@ int main() {
     Lexer lexer(path);
     Token current_token;
     // do {
-    //     current_token = lexer.get_next_token();
+    //     current_token = lexer.get_next_token_1_1();
+    //     std::cout<<current_token.value<<" "<<current_token.type<<std::endl;
     // }while (current_token.type != 25);
     Parser parser(lexer);
     parser.Program();
-    std::string message = "词法、语法分析完成，已生成相应的分析结果保存在当前目录下的result文件夹中.";
-    MessageBoxA(NULL, message.c_str(), "运行结果", MB_OK);
+    std::string message =
+            "The lexical and syntactic analysis has been completed, and the corresponding analysis results have been generated and saved in the result folder under the current directory.";
+    MessageBoxA(NULL, message.c_str(), "Result", MB_OK);
     return 0;
 }
