@@ -6,15 +6,15 @@
 
 void Parser::Match(int type) {
     if(current_token.type == type){
-        current_token = lexer.get_next_token_1_1();
         lexer.token_output<<current_token.value<<" "<<current_token.type<<std::endl;
+        current_token = lexer.get_next_token_1_1();
         while (current_token.type == 24){
-            current_rownum+=1;
+            linecount+=1;
             current_token = lexer.get_next_token_1_1();
         }
     }
     else{
-        parser_error<<"LINE:"<<current_rownum<<" "<<"Expected` "<<keyword_map_rev[type]<<" but Found` "<<current_token.value<<std::endl;
+        parser_error<<"LINE:"<<linecount<<" "<<"Expected` "<<keyword_map_rev[type]<<" but Found` "<<current_token.value<<std::endl;
     }
 }
 
@@ -62,16 +62,17 @@ void Parser::reverseDeclarationStmtList() {
 
 void Parser::parserVariableDeclaration() {
     symbolTable.updateLadrList(current_proc,var_count);
-    symbolTable.addToVarTable(current_token.value,current_proc,vkind,"integer",current_lev,var_count++);
-    vkind = 0;
+    symbolTable.addToVarTable(current_token.value,current_proc,vKind,"integer",current_lev,var_count++);
+    vKind = 0;
     parserVariable();
 }
 
 void Parser::parserFunctionDeclaration() {
     Match(7);
     current_proc=current_token.value;
+    proc_stack.emplace(current_proc);
     current_lev+=1;
-    vkind=1;
+    vKind=1;
     resolveIdentifier();
     Match(21);
     parserVariable();
@@ -79,7 +80,6 @@ void Parser::parserFunctionDeclaration() {
     Match(22);
     Match(23);
     parserFunctionBody();
-    current_proc="main";
     current_lev-=1;
 }
 
@@ -97,6 +97,8 @@ void Parser::parserFunctionBody() {
     //Match(23);
     parserExecutionStmtList();
     Match(2);
+    proc_stack.pop();
+    current_proc=proc_stack.top();
 }
 
 void Parser::parserExecutionStmt() {
@@ -224,11 +226,6 @@ void Parser::parserRationalOpt() {
     }
 }
 
-void Parser::printProcToFile() {
-    for (auto i : proc_list) {
-        proc_output<<i.proc<<" "<<"integer"<<" "<<i.plev<<" "<<i.fadr<<" "<<ladr_list[i.proc]<<std::endl;
-    }
-}
 
 
 

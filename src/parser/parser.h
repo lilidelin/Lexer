@@ -6,42 +6,26 @@
 #define LEXER_PARSER_H
 #include "../lexer/lexer.h"
 #include"../symbol/SymbolTable.h"
+#include<stack>
 class Parser {
 public:
-    Parser(Lexer& lexer):lexer(lexer),symbolTable("result/parser.var","result/parser.pro"){
-        current_rownum = 1;
-        current_token = lexer.get_next_token();
-        current_lev=0;
-        current_proc="main";
-        var_count=0;
-        vkind=0;
-        vtype="integer";
-        ladr_list["main"]=0;
-        proc_list.push_back({"main",0,0});
-        var_output = std::ofstream("result/parser.var");
-        proc_output = std::ofstream("result/parser.pro");
-        parser_error = std::ofstream("result/parser.err");
+    Parser(Lexer& lexer,const std::string& var_path,const std::string &proc_path,const std::string& error_path)
+    :lexer(lexer),symbolTable(var_path,proc_path),parser_error(error_path){
+        proc_stack.emplace("main");
+        current_token = lexer.get_next_token_1_1();
         symbolTable.addToProcList("main","integer",0,0);
+        symbolTable.ladr_list["main"]=0;
     }
     SymbolTable symbolTable;
-    std::map<std::string, int> ladr_list;
-    struct procInfo {
-        std::string proc;
-        int plev;
-        int fadr;
-    };
-    std::vector<procInfo> proc_list;
     Lexer& lexer;
-    int current_rownum;
+    std::stack<std::string> proc_stack;
+    int linecount=1;
+    int current_lev=0;
+    int var_count=0;
+    int vKind=0;
     Token current_token;
-    std::string current_proc;
-    int current_lev;
-    int var_count;
-    std::ofstream var_output;
-    std::ofstream proc_output;
+    std::string current_proc="main";
     std::ofstream parser_error;
-    int vkind;
-    std::string vtype;
     std::unordered_map<int, std::string> keyword_map_rev = {
         {1, "begin"}, {2, "end"}, {3, "integer"},
         {4, "if"}, {5, "then"}, {6, "else"},
@@ -56,7 +40,6 @@ public:
 
     void Program();//主程序
     void SubProgram();//分程序
-
     void parserDeclarationStmtList();
 
     void parserExecutionStmtList();
@@ -104,7 +87,6 @@ public:
     void parserConditionalExpr();
 
     void parserRationalOpt();
-    void printProcToFile();
 };
 
 

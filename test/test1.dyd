@@ -11,9 +11,11 @@ begin
             if n<=0 then F:=1
             else F:=n*F(n-1)
           end;
+      integer test1;
       if n<=0 then F:=1
       else F:=n*F(n-1)
     end;
+  integer test2;
   read(m);
   k:=F(m);
   write(k)

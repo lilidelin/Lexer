@@ -3,3 +3,5 @@ u main 0 integer 0 1
 dd main 0 integer 0 2
 n F 1 integer 1 3
 n H 1 integer 2 4
+test1 F 0 integer 1 5
+test2 main 0 integer 0 6

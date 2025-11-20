@@ -44,14 +44,14 @@ std::string openFileDialog() {
 }
 int main() {
     system("mkdir result");
-    std::string path = openFileDialog();
-    Lexer lexer(path);
-    Token current_token;
-    // do {
-    //     current_token = lexer.get_next_token_1_1();
-    //     std::cout<<current_token.value<<" "<<current_token.type<<std::endl;
-    // }while (current_token.type != 25);
-    Parser parser(lexer);
+    std::string text_path = openFileDialog();
+    std::string token_path = "./result/lexer.dyd";
+    std::string lexer_error_path = "./result/lexer.err";
+    std::string var_path = "./result/parser.var";
+    std::string proc_path = "./result/parser.pro";
+    std::string parser_error_path = "./result/parser.err";
+    Lexer lexer(text_path,token_path,lexer_error_path);
+    Parser parser(lexer,var_path,proc_path,parser_error_path);
     parser.Program();
     std::string message =
             "The lexical and syntactic analysis has been completed, and the corresponding analysis results have been generated and saved in the result folder under the current directory.";
