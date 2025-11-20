@@ -5,11 +5,10 @@
 #ifndef LEXER_PARSER_H
 #define LEXER_PARSER_H
 #include "../lexer/lexer.h"
-#include "map"
-#include "vector"
+#include"../symbol/SymbolTable.h"
 class Parser {
 public:
-    Parser(Lexer& lexer):lexer(lexer){
+    Parser(Lexer& lexer):lexer(lexer),symbolTable("result/parser.var","result/parser.pro"){
         current_rownum = 1;
         current_token = lexer.get_next_token();
         current_lev=0;
@@ -22,8 +21,9 @@ public:
         var_output = std::ofstream("result/parser.var");
         proc_output = std::ofstream("result/parser.pro");
         parser_error = std::ofstream("result/parser.err");
+        symbolTable.addToProcList("main","integer",0,0);
     }
-
+    SymbolTable symbolTable;
     std::map<std::string, int> ladr_list;
     struct procInfo {
         std::string proc;
@@ -42,6 +42,15 @@ public:
     std::ofstream parser_error;
     int vkind;
     std::string vtype;
+    std::unordered_map<int, std::string> keyword_map_rev = {
+        {1, "begin"}, {2, "end"}, {3, "integer"},
+        {4, "if"}, {5, "then"}, {6, "else"},
+        {7, "function"}, {8, "read"}, {9, "write"},
+        {12, "="}, {13, "<>"}, {14, "<="},
+        {15, "<"}, {16, ">="}, {17, ">"},
+        {18, "-"}, {19, "*"}, {20, ":="},
+        {21, "("}, {22, ")"}, {23, ";"}
+    };
 
     void Match(int type);
 

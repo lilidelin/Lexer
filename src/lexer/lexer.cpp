@@ -601,7 +601,7 @@ Token Lexer::get_next_token_1_1() {
             if (current_word.empty()) {
                 current_word+=current_char;
                 next_char=text.get();
-                if (!isalpha(next_char)&&!isdigit(next_char)) {
+                if (next_char=='>'||next_char=='<'||next_char=='=') {
                     current_word+=next_char;
                 }
                 else {
@@ -635,6 +635,7 @@ Token Lexer::get_next_token_1_1() {
     }
 }
 
+
 bool Lexer::IsAllDigit(std::string &word) {
     for (char c : word) {
         if (!isdigit(c)) {
@@ -642,6 +643,13 @@ bool Lexer::IsAllDigit(std::string &word) {
         }
     }
     return true;
+}
+
+void Lexer::PrintAllToken() {
+    do {
+        current_token = get_next_token_1_1();
+        token_output<<current_token.value<<" "<<current_token.type<<std::endl;
+    }while (current_token.type != 25);
 }
 
 

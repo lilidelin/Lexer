@@ -7,4 +7,5 @@ set(CMAKE_CXX_STANDARD 20)
 include_directories(${PROJECT_SOURCE_DIR}/include)
 
 
-add_executable(lexer src/main.cpp include/token.h src/lexer/lexer.h src/lexer/lexer.cpp src/parser/parser.cpp src/parser/parser.h)
+add_executable(lexer src/main.cpp include/token.h src/lexer/lexer.h src/lexer/lexer.cpp src/parser/parser.cpp src/parser/parser.h
+        src/symbol/SymbolTable.h)

@@ -67,4 +67,5 @@ public:
     bool SingleCharactor(Token &value);
     Token get_next_token_1_1();
     bool IsAllDigit(std::string& word);
+    void PrintAllToken();
 };

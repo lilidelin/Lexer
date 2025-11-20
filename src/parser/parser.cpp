@@ -7,19 +7,20 @@
 void Parser::Match(int type) {
     if(current_token.type == type){
         current_token = lexer.get_next_token_1_1();
+        lexer.token_output<<current_token.value<<" "<<current_token.type<<std::endl;
         while (current_token.type == 24){
             current_rownum+=1;
             current_token = lexer.get_next_token_1_1();
         }
     }
     else{
-        parser_error<<"LINE:"<<current_rownum<<" "<<"Expected`"<<type<<"but Found`"<<current_token.type<<std::endl;
+        parser_error<<"LINE:"<<current_rownum<<" "<<"Expected` "<<keyword_map_rev[type]<<" but Found` "<<current_token.value<<std::endl;
     }
 }
 
 void Parser::Program() {
     SubProgram();
-    printProcToFile();
+    symbolTable.addToProcTable();
 }
 
 void Parser::SubProgram() {
@@ -54,16 +55,15 @@ void Parser::reverseDeclarationStmtList() {
     if(current_token.type==23){
         Match(23);
         if(current_token.type==3) {
-            parserDeclarationStmt();
-            reverseDeclarationStmtList();
+            parserDeclarationStmtList();
         }
     }
 }
 
 void Parser::parserVariableDeclaration() {
-    ladr_list[current_proc]=var_count;
-    var_output << current_token.value << " " << current_proc << " " << vkind << " " << vtype << " " << current_lev <<
-        " " << var_count++ << std::endl;
+    symbolTable.updateLadrList(current_proc,var_count);
+    symbolTable.addToVarTable(current_token.value,current_proc,vkind,"integer",current_lev,var_count++);
+    vkind = 0;
     parserVariable();
 }
 
@@ -75,7 +75,7 @@ void Parser::parserFunctionDeclaration() {
     resolveIdentifier();
     Match(21);
     parserVariable();
-    proc_list.push_back({current_proc,current_lev,var_count});
+    symbolTable.addToProcList(current_proc,"integer",current_lev,var_count);
     Match(22);
     Match(23);
     parserFunctionBody();
@@ -117,8 +117,7 @@ void Parser::parserExecutionStmt() {
 void Parser::reverseExecutionStmtList() {
     if(current_token.type==23){
         Match(23);
-        parserExecutionStmt();
-        reverseExecutionStmtList();
+        parserExecutionStmtList();
     }
 }
 
@@ -164,8 +163,7 @@ void Parser::parserTerm() {
 void Parser::reverseArithmeticExpr() {
     if(current_token.type==18){
         Match(18);
-        parserTerm();
-        reverseArithmeticExpr();
+        parserArithmeticExpr();
     }
 }
 
